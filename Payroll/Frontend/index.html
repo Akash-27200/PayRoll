@@ -1,0 +1,798 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payroll Run — HR Portal</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+            /* ═══════════════════════════════════════════════
+           BASE / TOKENS
+        ═══════════════════════════════════════════════ */
+            :root {
+                --bg: #0d1117;
+                --surface: #161b22;
+                --border: #30363d;
+                --muted: #8b949e;
+                --text: #e6edf3;
+                --accent: #58a6ff;
+                --success: #3fb950;
+                --warning: #d29922;
+                --danger: #f85149;
+                --radius: 6px;
+                --font-sans: 'IBM Plex Sans', sans-serif;
+                --font-mono: 'IBM Plex Mono', monospace;
+            }
+
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: var(--font-sans);
+                font-size: 14px;
+                line-height: 1.6;
+                min-height: 100vh;
+            }
+
+            /* ── Layout ── */
+            .app {
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 32px 24px;
+            }
+
+            .header {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 40px;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 24px;
+            }
+
+            .logo {
+                width: 40px;
+                height: 40px;
+                background: var(--accent);
+                border-radius: var(--radius);
+                display: grid;
+                place-items: center;
+                font-family: var(--font-mono);
+                font-weight: 600;
+                font-size: 18px;
+                color: #0d1117;
+            }
+
+            .header h1 {
+                font-size: 20px;
+                font-weight: 600;
+            }
+
+            .header p {
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            /* ── Card ── */
+            .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 24px;
+                margin-bottom: 24px;
+            }
+
+            .card-title {
+                font-size: 13px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--muted);
+                margin-bottom: 16px;
+            }
+
+            /* ── Controls ── */
+            .controls {
+                display: flex;
+                gap: 12px;
+                align-items: flex-end;
+                flex-wrap: wrap;
+            }
+
+            label {
+                display: block;
+                font-size: 12px;
+                color: var(--muted);
+                margin-bottom: 4px;
+            }
+
+            select, input[type=number] {
+                background: var(--bg);
+                border: 1px solid var(--border);
+                color: var(--text);
+                padding: 8px 12px;
+                border-radius: var(--radius);
+                font-family: var(--font-mono);
+                font-size: 13px;
+                width: 130px;
+                outline: none;
+                transition: border-color .15s;
+            }
+
+                select:focus, input:focus {
+                    border-color: var(--accent);
+                }
+
+            /* ── Buttons ── */
+            .btn {
+                padding: 8px 20px;
+                border-radius: var(--radius);
+                border: none;
+                font-family: var(--font-sans);
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: opacity .15s, transform .1s;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+                .btn:active {
+                    transform: scale(.97);
+                }
+
+                .btn:disabled {
+                    opacity: .4;
+                    cursor: not-allowed;
+                    transform: none;
+                }
+
+            .btn-primary {
+                background: var(--accent);
+                color: #0d1117;
+            }
+
+            .btn-ghost {
+                background: transparent;
+                color: var(--text);
+                border: 1px solid var(--border);
+            }
+
+            .btn-sm {
+                padding: 4px 12px;
+                font-size: 12px;
+            }
+
+            /* ── Badge ── */
+            .badge {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 100px;
+                font-size: 11px;
+                font-weight: 600;
+                font-family: var(--font-mono);
+            }
+
+            .badge-green {
+                background: rgba(63,185,80,.15);
+                color: var(--success);
+            }
+
+            .badge-blue {
+                background: rgba(88,166,255,.15);
+                color: var(--accent);
+            }
+
+            .badge-red {
+                background: rgba(248,81,73,.15);
+                color: var(--danger);
+            }
+
+            /* ── Status banner ── */
+            .banner {
+                padding: 12px 16px;
+                border-radius: var(--radius);
+                font-size: 13px;
+                margin-bottom: 20px;
+                display: none;
+            }
+
+                .banner.show {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+            .banner-success {
+                background: rgba(63,185,80,.1);
+                border: 1px solid rgba(63,185,80,.3);
+                color: var(--success);
+            }
+
+            .banner-error {
+                background: rgba(248,81,73,.1);
+                border: 1px solid rgba(248,81,73,.3);
+                color: var(--danger);
+            }
+
+            .banner-warning {
+                background: rgba(210,153,34,.1);
+                border: 1px solid rgba(210,153,34,.3);
+                color: var(--warning);
+            }
+
+            .banner-info {
+                background: rgba(88,166,255,.1);
+                border: 1px solid rgba(88,166,255,.3);
+                color: var(--accent);
+            }
+
+            /* ── Table ── */
+            .table-wrap {
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 13px;
+            }
+
+            th {
+                text-align: left;
+                padding: 8px 12px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+                color: var(--muted);
+                border-bottom: 1px solid var(--border);
+            }
+
+            td {
+                padding: 10px 12px;
+                border-bottom: 1px solid rgba(48,54,61,.5);
+                font-family: var(--font-mono);
+                font-size: 12px;
+            }
+
+            tr:last-child td {
+                border-bottom: none;
+            }
+
+            tr:hover td {
+                background: rgba(88,166,255,.04);
+            }
+
+            .num {
+                text-align: right;
+            }
+
+            td.name-cell {
+                font-family: var(--font-sans);
+                font-size: 13px;
+                font-weight: 500;
+            }
+
+            td.dept-cell {
+                font-family: var(--font-sans);
+                color: var(--muted);
+                font-size: 12px;
+            }
+
+            /* ── Summary strip ── */
+            .summary {
+                display: flex;
+                gap: 24px;
+                flex-wrap: wrap;
+                margin-bottom: 20px;
+            }
+
+            .stat {
+            }
+
+            .stat-label {
+                font-size: 11px;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: .06em;
+            }
+
+            .stat-value {
+                font-family: var(--font-mono);
+                font-size: 20px;
+                font-weight: 600;
+                color: var(--accent);
+            }
+
+            /* ── Spinner ── */
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .spinner {
+                width: 16px;
+                height: 16px;
+                border: 2px solid var(--border);
+                border-top-color: var(--accent);
+                border-radius: 50%;
+                animation: spin .6s linear infinite;
+                display: inline-block;
+            }
+
+            /* ── Modal overlay ── */
+            .modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.7);
+                display: none;
+                place-items: center;
+                z-index: 100;
+            }
+
+                .modal-overlay.open {
+                    display: grid;
+                }
+
+            .modal {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                width: 520px;
+                max-width: 95vw;
+                padding: 28px;
+                position: relative;
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                background: none;
+                border: none;
+                color: var(--muted);
+                font-size: 20px;
+                cursor: pointer;
+                line-height: 1;
+            }
+
+                .modal-close:hover {
+                    color: var(--text);
+                }
+
+            .modal h2 {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+
+            /* ── Payslip ── */
+            .slip-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid var(--border);
+                font-size: 13px;
+            }
+
+                .slip-row:last-child {
+                    border-bottom: none;
+                }
+
+                .slip-row.total {
+                    font-weight: 700;
+                    color: var(--accent);
+                    font-family: var(--font-mono);
+                }
+
+            .slip-section-title {
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: var(--muted);
+                letter-spacing: .08em;
+                margin: 16px 0 8px;
+            }
+
+            /* ── Empty state ── */
+            .empty {
+                text-align: center;
+                padding: 48px 0;
+                color: var(--muted);
+            }
+
+            .empty-icon {
+                font-size: 40px;
+                margin-bottom: 12px;
+            }
+
+            /* ── Print ── */
+            @media print {
+                .no-print {
+                    display: none !important;
+                }
+
+                .modal-overlay {
+                    position: static;
+                    display: block;
+                    background: none;
+                }
+
+                .modal {
+                    border: none;
+                    box-shadow: none;
+                    width: 100%;
+                }
+
+                body {
+                    background: white;
+                    color: black;
+                }
+
+                .slip-row {
+                    color: black;
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">₹</div>
+            <div>
+                <h1>Payroll Run Module</h1>
+                <p>HR Portal — Monthly Payroll Processing</p>
+            </div>
+        </header>
+
+        <!-- ── Controls Card ── -->
+        <div class="card no-print">
+            <div class="card-title">Run Payroll</div>
+            <div class="controls">
+                <div>
+                    <label for="selMonth">Month</label>
+                    <select id="selMonth"></select>
+                </div>
+                <div>
+                    <label for="selYear">Year</label>
+                    <input type="number" id="selYear" value="2026" min="2000" max="2100" />
+                </div>
+                <button class="btn btn-primary" id="btnRun" onclick="runPayroll()">
+                    <span id="runLabel">⚡ Run Payroll</span>
+                </button>
+                <button class="btn btn-ghost" onclick="fetchRun()">
+                    🔍 Load Existing
+                </button>
+            </div>
+        </div>
+
+        <!-- Banner -->
+        <div class="banner" id="banner"></div>
+
+        <!-- ── Results ── -->
+        <div id="results" style="display:none">
+            <div class="card">
+                <div class="card-title">Run Summary</div>
+                <div class="summary" id="summary"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Payroll Details</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th class="num">Basic (₹)</th>
+                                <th class="num">Days</th>
+                                <th class="num">Present</th>
+                                <th class="num">Gross (₹)</th>
+                                <th class="num">PF (₹)</th>
+                                <th class="num">Prof Tax</th>
+                                <th class="num">Net Pay (₹)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Payslip Modal ── -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal">
+            <button class="modal-close no-print" onclick="closeSlip()">✕</button>
+            <h2>Employee Payslip</h2>
+            <div id="slipContent"></div>
+            <div style="margin-top:24px; text-align:right" class="no-print">
+                <button class="btn btn-primary btn-sm" onclick="window.print()">🖨 Print</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+  // ── CONFIG ────────────────────────────────────────────────
+  // Change this to your API base URL if different
+        const API = 'https://localhost:7240/api';
+
+  const MONTHS = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December'
+  ];
+
+  // ── State ────────────────────────────────────────────────
+  let currentRun = null;
+
+  // ── Init ─────────────────────────────────────────────────
+  (function init() {
+    const sel = document.getElementById('selMonth');
+    MONTHS.forEach((m, i) => {
+      const opt = document.createElement('option');
+      opt.value = i + 1;
+      opt.textContent = m;
+      if (i + 1 === new Date().getMonth() + 1) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  })();
+
+  // ── Helpers ───────────────────────────────────────────────
+  const fmt = n => '₹' + parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  const fmtNum = n => parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+  function showBanner(type, msg) {
+    const el = document.getElementById('banner');
+    el.className = `banner show banner-${type}`;
+    el.innerHTML = msg;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideBanner() {
+    document.getElementById('banner').className = 'banner';
+  }
+
+  function setLoading(on) {
+    const btn   = document.getElementById('btnRun');
+    const label = document.getElementById('runLabel');
+    btn.disabled = on;
+    label.innerHTML = on
+      ? '<span class="spinner"></span> Running...'
+      : '⚡ Run Payroll';
+  }
+
+  // ── Run Payroll (POST) ────────────────────────────────────
+  async function runPayroll() {
+    hideBanner();
+    const month = parseInt(document.getElementById('selMonth').value);
+    const year  = parseInt(document.getElementById('selYear').value);
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/payroll/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ month, year })
+      });
+
+      const data = await res.json();
+
+      if (res.status === 409) {
+        showBanner('warning', '⚠️ ' + data.message + ' Loading the existing run...');
+        await fetchRun();
+        return;
+      }
+
+      if (!res.ok) {
+        showBanner('error', '✕ ' + (data.message || 'Payroll run failed.'));
+        return;
+      }
+
+      showBanner('success', '✓ Payroll run completed successfully!');
+      await fetchRun();
+
+    } catch (err) {
+      showBanner('error', '✕ Network error: ' + err.message
+        + '<br><small>Is the API running? Check the console.</small>');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Fetch Existing Run (GET) ──────────────────────────────
+  async function fetchRun() {
+    hideBanner();
+    const month = parseInt(document.getElementById('selMonth').value);
+    const year  = parseInt(document.getElementById('selYear').value);
+
+    showBanner('info', '<span class="spinner"></span>&nbsp; Loading payroll run...');
+    try {
+      const res = await fetch(`${API}/payroll/${month}/${year}`);
+
+      if (res.status === 404) {
+        showBanner('warning', '⚠️ No payroll run found for '
+          + MONTHS[month - 1] + ' ' + year + '.');
+        document.getElementById('results').style.display = 'none';
+        return;
+      }
+
+      if (!res.ok) throw new Error('API error: ' + res.status);
+
+      const run = await res.json();
+      currentRun = run;
+      renderRun(run);
+      hideBanner();
+
+    } catch (err) {
+      showBanner('error', '✕ ' + err.message);
+      console.error(err);
+    }
+  }
+
+  // ── Render Results ────────────────────────────────────────
+  function renderRun(run) {
+    document.getElementById('results').style.display = 'block';
+
+    // Summary
+    document.getElementById('summary').innerHTML = `
+      <div class="stat">
+        <div class="stat-label">Period</div>
+        <div class="stat-value">${MONTHS[run.month - 1]} ${run.year}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Employees</div>
+        <div class="stat-value">${run.employeeCount}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Net Pay</div>
+        <div class="stat-value">${fmt(run.totalNetPay)}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" style="font-size:14px; padding-top:4px">
+          <span class="badge badge-green">Finalized</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Run ID</div>
+        <div class="stat-value" style="font-size:14px">#${run.runId}</div>
+      </div>
+    `;
+
+    // Table
+    const tbody = document.getElementById('tableBody');
+    if (!run.details || run.details.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10"><div class="empty">
+        <div class="empty-icon">📭</div>
+        <div>No attendance records found for this period.</div>
+      </div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = run.details.map(d => {
+      const netColor = d.netPay < 0 ? 'color:var(--danger)' : '';
+      return `
+        <tr>
+          <td class="name-cell">
+            ${d.fullName}
+            <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">${d.employeeCode}</div>
+          </td>
+          <td class="dept-cell">${d.departmentName}</td>
+          <td class="num">${fmtNum(d.basicSalary)}</td>
+          <td class="num">${d.workingDays}</td>
+          <td class="num">
+            ${d.daysPresent === 0
+              ? '<span class="badge badge-red">LOP</span>'
+              : d.daysPresent === d.workingDays
+                ? `${d.daysPresent} <span class="badge badge-green">Full</span>`
+                : d.daysPresent}
+          </td>
+          <td class="num">${fmtNum(d.grossPay)}</td>
+          <td class="num">${fmtNum(d.pfDeduction)}</td>
+          <td class="num">${fmtNum(d.professionalTax)}</td>
+          <td class="num" style="${netColor}; font-weight:600">${fmtNum(d.netPay)}</td>
+          <td>
+            <button class="btn btn-ghost btn-sm"
+              onclick="openSlip(${run.runId}, ${d.employeeId})">
+              Slip
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── Payslip Modal ─────────────────────────────────────────
+  async function openSlip(runId, employeeId) {
+    document.getElementById('slipContent').innerHTML =
+      '<div class="empty"><span class="spinner" style="width:24px;height:24px;border-width:3px"></span></div>';
+    document.getElementById('modalOverlay').classList.add('open');
+
+    try {
+      const res = await fetch(`${API}/payroll/${runId}/slip/${employeeId}`);
+      if (!res.ok) throw new Error('Payslip not found.');
+      const d = await res.json();
+      renderSlip(d);
+    } catch (err) {
+      document.getElementById('slipContent').innerHTML =
+        `<div style="color:var(--danger)">${err.message}</div>`;
+    }
+  }
+
+  function renderSlip(d) {
+    const month = currentRun ? MONTHS[currentRun.month - 1] + ' ' + currentRun.year : 'N/A';
+    document.getElementById('slipContent').innerHTML = `
+      <div class="slip-row">
+        <span style="color:var(--muted)">Employee</span>
+        <span><strong>${d.fullName}</strong> (${d.employeeCode})</span>
+      </div>
+      <div class="slip-row">
+        <span style="color:var(--muted)">Department</span><span>${d.departmentName}</span>
+      </div>
+      <div class="slip-row">
+        <span style="color:var(--muted)">Pay Period</span><span>${month}</span>
+      </div>
+      <div class="slip-row">
+        <span style="color:var(--muted)">Working Days</span><span>${d.workingDays}</span>
+      </div>
+      <div class="slip-row">
+        <span style="color:var(--muted)">Days Present</span>
+        <span>${d.daysPresent}
+          ${d.daysPresent === 0 ? '<span class="badge badge-red" style="margin-left:6px">LOP</span>' : ''}
+        </span>
+      </div>
+
+      <div class="slip-section-title">Earnings</div>
+      <div class="slip-row">
+        <span>Basic Salary</span><span>${fmt(d.basicSalary)}</span>
+      </div>
+      <div class="slip-row">
+        <span>Gross Pay</span><span>${fmt(d.grossPay)}</span>
+      </div>
+
+      <div class="slip-section-title">Deductions</div>
+      <div class="slip-row">
+        <span>Provident Fund (12%)</span>
+        <span style="color:var(--danger)">- ${fmt(d.pfDeduction)}</span>
+      </div>
+      <div class="slip-row">
+        <span>Professional Tax</span>
+        <span style="color:var(--danger)">- ${fmt(d.professionalTax)}</span>
+      </div>
+
+      <div class="slip-section-title" style="margin-top:20px"></div>
+      <div class="slip-row total">
+        <span>NET PAY</span><span>${fmt(d.netPay)}</span>
+      </div>
+    `;
+  }
+
+  function closeSlip() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeSlip();
+  }
+    </script>
+</body>
+</html>

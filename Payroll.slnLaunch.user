@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "Payroll\\Payroll.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "PayrollTest\\PayrollTest.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
