@@ -184,64 +184,7 @@ For SQL Server (named instance):
 4. The browser will automatically open to `https://localhost:7240/index.html`
 
 
-## Project Structure
 
-```
-Payroll/
-├── Payroll/                              # Main API Project
-│   ├── Controllers/
-│   │   ├── EmployeesController.cs        # Employee CRUD endpoints
-│   │   └── PayrollController.cs          # Payroll run & retrieval endpoints
-│   │
-│   ├── Services/
-│   │   ├── IEmployeeService.cs           # Interface for employee logic
-│   │   ├── EmployeeService.cs            # Implementation
-│   │   ├── IPayrollService.cs            # Interface for payroll logic
-│   │   └── PayrollService.cs             # Calculation & execution logic
-│   │
-│   ├── Repositories/
-│   │   ├── IEmployeeRepository.cs        # Interface for data access
-│   │   ├── EmployeeRepository.cs         # Employee data operations
-│   │   ├── IPayrollRepository.cs         # Interface for payroll data
-│   │   └── PayrollRepository.cs          # Payroll data operations
-│   │
-│   ├── Models/
-│   │   ├── Employee.cs                   # Employee entity
-│   │   ├── PayrollRun.cs                 # Payroll run summary
-│   │   └── PayrollDetail.cs              # Individual employee payroll
-│   │
-│   ├── DTO/
-│   │   ├── PagedResult.cs                # Generic pagination wrapper
-│   │   └── PayrollRunRequest.cs          # POST /payroll/run request
-│   │
-│   ├── Infrastructure/
-│   │   ├── IDbConnectionFactory.cs       # Database connection interface
-│   │   └── SqlConnectionFactory.cs       # SQL Server connection factory
-│   │
-│   ├── Frontend/
-│   │   └── index.html                    # Single-page frontend application
-│   │
-│   ├── appsettings.json                  # Configuration (connection strings)
-│   ├── appsettings.Development.json      # Dev-specific settings
-│   ├── Program.cs                        # Startup & dependency injection
-│   └── Payroll.csproj                    # Project file
-│
-├── PayrollTest/                          # Unit Test Project
-│   ├── PayrollCalculationTests.cs        # Tests for salary calculations
-│   ├── PayrollServiceTests.cs            # Service layer tests
-│   └── PayrollTest.csproj                # Test project file
-│
-├── DBQueries/                            # Database Scripts (to be created)
-│   ├── 01_Schema.sql                     # Table creation & relationships
-│   ├── 02_SeedData.sql                   # Sample employees & attendance
-│   └── 03_StoredProcedures.sql           # Payroll calculation procedures
-│
-├── .gitignore                            # Git ignore rules
-├── Payroll.sln                           # Solution file
-└── README.md                             # This file
-```
-
----
 
 ## API Endpoints
 
