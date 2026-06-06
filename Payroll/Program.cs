@@ -1,6 +1,8 @@
 using Payroll.Infrastructure;
 using Payroll.Repositories;
 using Payroll.Services;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,26 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()));
 
 var app = builder.Build();
+
+// Serve the static frontend files from the Frontend folder and use index.html as default
+var env = app.Environment;
+var frontendPath = Path.Combine(env.ContentRootPath, "Frontend");
+if (Directory.Exists(frontendPath))
+{
+    var fileProvider = new PhysicalFileProvider(frontendPath);
+    // Serve index.html as default document at site root
+    app.UseDefaultFiles(new DefaultFilesOptions
+    {
+        FileProvider = fileProvider,
+        DefaultFileNames = { "index.html" }
+    });
+
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = fileProvider,
+        RequestPath = ""
+    });
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

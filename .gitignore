@@ -1,0 +1,122 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Rider
+.idea/
+*.sln.iml
+*.swp
+*.swo
+*~
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider directories
+.idea
+
+# Visual Studio 2015/2017 cache/options
+.vs/
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# NuGet
+*.nupkg
+*.nupkg.metadata
+*.snupkg
+.nuget/
+
+# BeatPulse healthcheck temp database
+healthchecksdb
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# NUnit 3 - Some properties might have been added with non-default values.
+TestResult.xml
+nunit-*.xml
+
+# VS Code directories
+.vscode/
+launch.json
+settings.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database files (if applicable)
+*.mdf
+*.ldf
+*.ndf
+
+# SQL Server files
+App_Data/
+*.MDF
+*.LDF
+
+# Local database
+*.db
+*.sqlite
+*.sqlite3
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Node (if any frontend dependencies)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Coverage reports
+coverage/
+opencover/

@@ -142,11 +142,6 @@ D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\refint\Payroll.dll
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\Payroll.pdb
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\Payroll.genruntimeconfig.cache
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\ref\Payroll.dll
-D:\projects\Payroll 2\Payroll\Payroll\bin\Debug\net8.0\Frontend\angular.json
-D:\projects\Payroll 2\Payroll\Payroll\bin\Debug\net8.0\Frontend\package.json
-D:\projects\Payroll 2\Payroll\Payroll\bin\Debug\net8.0\Frontend\tsconfig.app.json
-D:\projects\Payroll 2\Payroll\Payroll\bin\Debug\net8.0\Frontend\tsconfig.json
-D:\projects\Payroll 2\Payroll\Payroll\bin\Debug\net8.0\Frontend\tsconfig.spec.json
 D:\projects\Payroll 2\Payroll\Payroll\bin\Debug\net8.0\Payroll.staticwebassets.endpoints.json
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\rpswa.dswa.cache.json
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\rjimswa.dswa.cache.json
@@ -155,3 +150,4 @@ D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\rjsmcshtml.dswa.cache.jso
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\projects\Payroll 2\Payroll\Payroll\obj\Debug\net8.0\Payroll.sourcelink.json
