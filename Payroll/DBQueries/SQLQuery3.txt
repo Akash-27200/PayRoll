@@ -1,0 +1,135 @@
+﻿-- =============================================
+-- FILE: Database/03_StoredProcedures.sql
+-- PURPOSE: usp_RunPayroll — calculate & persist payroll
+-- Run AFTER 01_Schema.sql
+-- =============================================
+
+USE PayrollDB;
+GO
+
+CREATE OR ALTER PROCEDURE usp_RunPayroll
+    @Month INT,
+    @Year  INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- ── Input validation ───────────────────────────────────
+    IF @Month < 1 OR @Month > 12
+    BEGIN
+        RAISERROR('VALIDATION_ERROR: Month must be between 1 and 12.', 16, 1);
+        RETURN;
+    END
+
+    IF @Year < 2000 OR @Year > 2100
+    BEGIN
+        RAISERROR('VALIDATION_ERROR: Year must be between 2000 and 2100.', 16, 1);
+        RETURN;
+    END
+
+    -- ── Duplicate guard (immutability rule) ────────────────
+    -- NOTE: The service layer also checks before calling this SP.
+    -- This check is the final safety net (handles race conditions too).
+    IF EXISTS (
+        SELECT 1 FROM PayrollRuns
+        WHERE Month = @Month AND Year = @Year
+    )
+    BEGIN
+        RAISERROR(
+            'DUPLICATE: Payroll run already exists for the given month/year.',
+            16, 1
+        );
+        RETURN;
+    END
+
+    -- ── Run payroll in a transaction ───────────────────────
+    BEGIN TRANSACTION;
+    BEGIN TRY
+
+        -- 1. Create the run header (IsFinalized = 1 immediately — immutable)
+        INSERT INTO PayrollRuns (Month, Year, IsFinalized)
+        VALUES (@Month, @Year, 1);
+
+        DECLARE @RunId INT = SCOPE_IDENTITY();
+
+        -- 2. Calculate & insert details for every active employee
+        --    who has an attendance record for this month/year.
+        --
+        --    Formulas:
+        --      GrossPay        = ROUND( (BasicSalary / TotalWorkingDays) * DaysPresent, 2 )
+        --      PFDeduction     = ROUND( BasicSalary * 0.12, 2 )
+        --      ProfessionalTax = 200.00  (flat)
+        --      NetPay          = GrossPay - PFDeduction - ProfessionalTax
+        --
+        --    Edge-case: DaysPresent = 0 → GrossPay = 0.
+        --    PF & PT are still calculated on BasicSalary as per Indian payroll rules.
+        --    This can result in a negative NetPay (LOP scenario). See README for details.
+
+        INSERT INTO PayrollDetails
+            (RunId, EmployeeId, BasicSalary, WorkingDays, DaysPresent,
+             GrossPay, PFDeduction, ProfessionalTax, NetPay)
+        SELECT
+            @RunId,
+            e.EmployeeId,
+            e.BasicSalary,
+            a.TotalWorkingDays,
+            a.DaysPresent,
+
+            -- Gross Pay
+            ROUND(
+                CAST(e.BasicSalary AS DECIMAL(18,6))
+                / a.TotalWorkingDays
+                * a.DaysPresent,
+            2) AS GrossPay,
+
+            -- PF Deduction
+            ROUND(e.BasicSalary * 0.12, 2) AS PFDeduction,
+
+            -- Professional Tax
+            200.00 AS ProfessionalTax,
+
+            -- Net Pay  =  GrossPay - PF - PT
+            ROUND(
+                CAST(e.BasicSalary AS DECIMAL(18,6))
+                / a.TotalWorkingDays
+                * a.DaysPresent,
+            2)
+            - ROUND(e.BasicSalary * 0.12, 2)
+            - 200.00 AS NetPay
+
+        FROM Employees e
+        INNER JOIN Attendance a
+            ON  e.EmployeeId = a.EmployeeId
+            AND a.Month      = @Month
+            AND a.Year       = @Year
+        WHERE e.IsActive = 1;
+
+        -- 3. Return a run summary row to the caller
+        SELECT
+            r.RunId,
+            r.Month,
+            r.Year,
+            r.RunDate,
+            r.IsFinalized,
+            COUNT(d.DetailId)        AS EmployeeCount,
+            ISNULL(SUM(d.NetPay), 0) AS TotalNetPay
+        FROM PayrollRuns r
+        LEFT JOIN PayrollDetails d ON r.RunId = d.RunId
+        WHERE r.RunId = @RunId
+        GROUP BY r.RunId, r.Month, r.Year, r.RunDate, r.IsFinalized;
+
+        COMMIT TRANSACTION;
+
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        -- Re-throw the original error to the caller
+        THROW;
+    END CATCH
+END;
+GO
+
+PRINT 'Stored procedure usp_RunPayroll created successfully.';
+GO

@@ -1,0 +1,147 @@
+﻿-- =============================================
+-- FILE: Database/01_Schema.sql
+-- PURPOSE: Create all tables, constraints, indexes
+-- Run this script FIRST on an empty database
+-- =============================================
+
+USE master;
+GO
+
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'PayrollDB')
+    CREATE DATABASE PayrollDB;
+GO
+
+USE PayrollDB;
+GO
+
+-- ─────────────────────────────
+-- 1. DEPARTMENTS
+-- ─────────────────────────────
+CREATE TABLE Departments (
+    DepartmentId   INT            NOT NULL IDENTITY(1,1),
+    DepartmentName NVARCHAR(100)  NOT NULL,
+    CreatedAt      DATETIME2      NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT PK_Departments PRIMARY KEY (DepartmentId),
+    CONSTRAINT UQ_Departments_Name UNIQUE (DepartmentName)
+);
+GO
+
+-- ─────────────────────────────
+-- 2. EMPLOYEES
+-- ─────────────────────────────
+CREATE TABLE Employees (
+    EmployeeId    INT             NOT NULL IDENTITY(1,1),
+    EmployeeCode  NVARCHAR(20)    NOT NULL,
+    FullName      NVARCHAR(150)   NOT NULL,
+    Email         NVARCHAR(200)   NOT NULL,
+    BasicSalary   DECIMAL(12, 2)  NOT NULL,
+    DepartmentId  INT             NOT NULL,
+    IsActive      BIT             NOT NULL DEFAULT 1,
+    JoiningDate   DATE            NOT NULL,
+    CreatedAt     DATETIME2       NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT PK_Employees    PRIMARY KEY (EmployeeId),
+    CONSTRAINT UQ_Employees_Code  UNIQUE (EmployeeCode),
+    CONSTRAINT UQ_Employees_Email UNIQUE (Email),
+    CONSTRAINT CHK_Employees_Salary CHECK (BasicSalary > 0),
+    CONSTRAINT FK_Employees_Departments
+        FOREIGN KEY (DepartmentId) REFERENCES Departments(DepartmentId)
+);
+GO
+
+-- ─────────────────────────────
+-- 3. ATTENDANCE
+-- ─────────────────────────────
+CREATE TABLE Attendance (
+    AttendanceId     INT  NOT NULL IDENTITY(1,1),
+    EmployeeId       INT  NOT NULL,
+    Month            TINYINT NOT NULL,
+    Year             SMALLINT NOT NULL,
+    DaysPresent      INT NOT NULL,
+    TotalWorkingDays INT NOT NULL,
+    CreatedAt        DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT PK_Attendance PRIMARY KEY (AttendanceId),
+    CONSTRAINT UQ_Attendance_Emp_Month_Year
+        UNIQUE (EmployeeId, Month, Year),
+    CONSTRAINT CHK_Attendance_Month
+        CHECK (Month BETWEEN 1 AND 12),
+    CONSTRAINT CHK_Attendance_Year
+        CHECK (Year >= 2000),
+    CONSTRAINT CHK_Attendance_DaysPresent
+        CHECK (DaysPresent >= 0),
+    CONSTRAINT CHK_Attendance_WorkingDays
+        CHECK (TotalWorkingDays > 0),
+    CONSTRAINT CHK_Attendance_Present_LTE_Working
+        CHECK (DaysPresent <= TotalWorkingDays),
+    CONSTRAINT FK_Attendance_Employees
+        FOREIGN KEY (EmployeeId) REFERENCES Employees(EmployeeId)
+);
+GO
+
+-- ─────────────────────────────
+-- 4. PAYROLL RUNS
+-- (one row per month/year — immutable once created)
+-- ─────────────────────────────
+CREATE TABLE PayrollRuns (
+    RunId        INT      NOT NULL IDENTITY(1,1),
+    Month        TINYINT  NOT NULL,
+    Year         SMALLINT NOT NULL,
+    RunDate      DATETIME2 NOT NULL DEFAULT GETDATE(),
+    IsFinalized  BIT      NOT NULL DEFAULT 1,   -- always 1; immutable by design
+    CreatedAt    DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT PK_PayrollRuns PRIMARY KEY (RunId),
+    CONSTRAINT UQ_PayrollRuns_Month_Year UNIQUE (Month, Year),
+    CONSTRAINT CHK_PayrollRuns_Month CHECK (Month BETWEEN 1 AND 12),
+    CONSTRAINT CHK_PayrollRuns_Year  CHECK (Year >= 2000)
+);
+GO
+
+-- ─────────────────────────────
+-- 5. PAYROLL DETAILS
+-- (one row per employee per run)
+-- ─────────────────────────────
+CREATE TABLE PayrollDetails (
+    DetailId        INT            NOT NULL IDENTITY(1,1),
+    RunId           INT            NOT NULL,
+    EmployeeId      INT            NOT NULL,
+    BasicSalary     DECIMAL(12,2)  NOT NULL,
+    WorkingDays     INT            NOT NULL,
+    DaysPresent     INT            NOT NULL,
+    GrossPay        DECIMAL(12,2)  NOT NULL,
+    PFDeduction     DECIMAL(12,2)  NOT NULL,
+    ProfessionalTax DECIMAL(12,2)  NOT NULL,
+    NetPay          DECIMAL(12,2)  NOT NULL,
+
+    CONSTRAINT PK_PayrollDetails PRIMARY KEY (DetailId),
+    CONSTRAINT UQ_PayrollDetails_Run_Emp UNIQUE (RunId, EmployeeId),
+    CONSTRAINT FK_PayrollDetails_Run
+        FOREIGN KEY (RunId) REFERENCES PayrollRuns(RunId),
+    CONSTRAINT FK_PayrollDetails_Employee
+        FOREIGN KEY (EmployeeId) REFERENCES Employees(EmployeeId)
+);
+GO
+
+-- ─────────────────────────────
+-- INDEXES
+-- ─────────────────────────────
+CREATE INDEX IX_Employees_DepartmentId
+    ON Employees(DepartmentId);
+
+CREATE INDEX IX_Attendance_EmployeeId
+    ON Attendance(EmployeeId);
+
+CREATE INDEX IX_Attendance_Month_Year
+    ON Attendance(Month, Year);
+
+CREATE INDEX IX_PayrollDetails_RunId
+    ON PayrollDetails(RunId);
+
+CREATE INDEX IX_PayrollDetails_EmployeeId
+    ON PayrollDetails(EmployeeId);
+GO
+
+PRINT 'Schema created successfully.';
+GO

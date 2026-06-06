@@ -1,0 +1,76 @@
+﻿-- =============================================
+-- FILE: Database/02_SeedData.sql
+-- PURPOSE: Seed data — 5 employees, 2 departments,
+--          attendance records for June 2026
+-- Run AFTER 01_Schema.sql
+-- =============================================
+
+USE PayrollDB;
+GO
+
+-- Guard: skip if already seeded
+IF EXISTS (SELECT 1 FROM Departments)
+BEGIN
+    PRINT 'Seed data already exists. Skipping.';
+    RETURN;
+END
+GO
+
+-- ─────────────────────────────
+-- DEPARTMENTS
+-- ─────────────────────────────
+SET IDENTITY_INSERT Departments ON;
+
+INSERT INTO Departments (DepartmentId, DepartmentName) VALUES
+(1, 'Engineering'),
+(2, 'Human Resources');
+
+SET IDENTITY_INSERT Departments OFF;
+GO
+
+-- ─────────────────────────────
+-- EMPLOYEES  (5 across 2 depts)
+-- ─────────────────────────────
+SET IDENTITY_INSERT Employees ON;
+
+INSERT INTO Employees
+    (EmployeeId, EmployeeCode, FullName, Email, BasicSalary, DepartmentId, JoiningDate)
+VALUES
+(1, 'EMP001', 'Ravi Sharma',   'ravi.sharma@payroll.dev',   30000.00, 1, '2022-01-15'),
+(2, 'EMP002', 'Priya Patel',   'priya.patel@payroll.dev',   35000.00, 1, '2022-03-10'),
+(3, 'EMP003', 'Ankit Mehta',   'ankit.mehta@payroll.dev',   28000.00, 1, '2023-06-01'),
+(4, 'EMP004', 'Sneha Desai',   'sneha.desai@payroll.dev',   32000.00, 2, '2022-09-20'),
+(5, 'EMP005', 'Rahul Verma',   'rahul.verma@payroll.dev',   40000.00, 2, '2021-11-05');
+
+SET IDENTITY_INSERT Employees OFF;
+GO
+
+-- ─────────────────────────────
+-- ATTENDANCE — June 2026
+-- 26 working days in the month
+-- ─────────────────────────────
+DECLARE @Month TINYINT  = 6;
+DECLARE @Year  SMALLINT = 2026;
+
+INSERT INTO Attendance (EmployeeId, Month, Year, DaysPresent, TotalWorkingDays) VALUES
+(1, @Month, @Year, 24, 26),   -- Ravi   — 2 days absent
+(2, @Month, @Year, 26, 26),   -- Priya  — full attendance
+(3, @Month, @Year, 20, 26),   -- Ankit  — 6 days absent
+(4, @Month, @Year, 22, 26),   -- Sneha  — 4 days absent
+(5, @Month, @Year,  0, 26);   -- Rahul  — edge case: 0 days present (on leave / LOP)
+GO
+
+PRINT 'Seed data inserted successfully.';
+GO
+
+-- ─────────────────────────────
+-- QUICK VERIFICATION
+-- ─────────────────────────────
+SELECT e.EmployeeCode, e.FullName, d.DepartmentName,
+       e.BasicSalary, a.DaysPresent, a.TotalWorkingDays
+FROM   Employees e
+JOIN   Departments d  ON e.DepartmentId  = d.DepartmentId
+JOIN   Attendance  a  ON e.EmployeeId    = a.EmployeeId
+WHERE  a.Month = 6 AND a.Year = 2026
+ORDER  BY e.EmployeeId;
+GO

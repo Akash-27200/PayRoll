@@ -4,508 +4,1200 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Payroll Run — HR Portal</title>
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
-
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
     <style>
-            /* ═══════════════════════════════════════════════
-           BASE / TOKENS
+        /* ═══════════════════════════════════════════════
+           DESIGN TOKENS
         ═══════════════════════════════════════════════ */
-            :root {
-                --bg: #0d1117;
-                --surface: #161b22;
-                --border: #30363d;
-                --muted: #8b949e;
-                --text: #e6edf3;
-                --accent: #58a6ff;
-                --success: #3fb950;
-                --warning: #d29922;
-                --danger: #f85149;
-                --radius: 6px;
-                --font-sans: 'IBM Plex Sans', sans-serif;
-                --font-mono: 'IBM Plex Mono', monospace;
-            }
+        :root {
+            --bg: #0a0e13;
+            --bg-deep: #060a0f;
+            --surface: rgba(16, 22, 30, 0.75);
+            --surface-solid: #10161e;
+            --border: rgba(56, 189, 170, 0.12);
+            --border-hover: rgba(56, 189, 170, 0.3);
+            --muted: #6b7f8e;
+            --text: #e8eff4;
+            --text-dim: #a0b0bc;
+            --accent: #38bdaa;
+            --accent-glow: rgba(56, 189, 170, 0.25);
+            --accent-deep: #2a9485;
+            --success: #34d399;
+            --success-bg: rgba(52, 211, 153, 0.1);
+            --warning: #fbbf24;
+            --warning-bg: rgba(251, 191, 36, 0.1);
+            --danger: #f87171;
+            --danger-bg: rgba(248, 113, 113, 0.1);
+            --info-bg: rgba(56, 189, 170, 0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-xs: 6px;
+            --font-sans: 'Space Grotesk', sans-serif;
+            --font-mono: 'DM Mono', monospace;
+            --shadow-card: 0 4px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--border);
+            --shadow-card-hover: 0 8px 48px rgba(0,0,0,0.5), 0 0 0 1px var(--border-hover);
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
-            *, *::before, *::after {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-            }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-            body {
-                background: var(--bg);
-                color: var(--text);
-                font-family: var(--font-sans);
-                font-size: 14px;
-                line-height: 1.6;
-                min-height: 100vh;
-            }
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
 
-            /* ── Layout ── */
-            .app {
-                max-width: 1100px;
-                margin: 0 auto;
-                padding: 32px 24px;
-            }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
-            .header {
-                display: flex;
-                align-items: center;
-                gap: 16px;
-                margin-bottom: 40px;
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 24px;
-            }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-hover);
+            border-radius: 10px;
+        }
 
-            .logo {
-                width: 40px;
-                height: 40px;
+            ::-webkit-scrollbar-thumb:hover {
                 background: var(--accent);
-                border-radius: var(--radius);
-                display: grid;
-                place-items: center;
-                font-family: var(--font-mono);
-                font-weight: 600;
-                font-size: 18px;
-                color: #0d1117;
             }
 
-            .header h1 {
-                font-size: 20px;
-                font-weight: 600;
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════
+           ANIMATED BACKGROUND
+        ═══════════════════════════════════════════════ */
+        .bg-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            will-change: transform;
+        }
+
+        .bg-orb--1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            top: -200px;
+            left: -150px;
+            animation: orbFloat1 18s ease-in-out infinite;
+        }
+
+        .bg-orb--2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #1e6b63 0%, transparent 70%);
+            bottom: -200px;
+            right: -100px;
+            animation: orbFloat2 22s ease-in-out infinite;
+        }
+
+        .bg-orb--3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(56,189,170,0.5) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbFloat3 15s ease-in-out infinite;
+        }
+
+        /* Grid pattern overlay */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(56,189,170,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,170,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 80%);
+        }
+
+        @keyframes orbFloat1 {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
             }
 
-            .header p {
-                color: var(--muted);
+            33% {
+                transform: translate(80px, 60px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-40px, 100px) scale(0.95);
+            }
+        }
+
+        @keyframes orbFloat2 {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(-60px, -80px) scale(1.08);
+            }
+
+            66% {
+                transform: translate(50px, -40px) scale(0.92);
+            }
+        }
+
+        @keyframes orbFloat3 {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.15;
+            }
+
+            50% {
+                transform: translate(-40%, -60%) scale(1.3);
+                opacity: 0.25;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════
+           LAYOUT
+        ═══════════════════════════════════════════════ */
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 40px 28px 80px;
+        }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 44px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid var(--border);
+            animation: fadeSlideDown 0.7s var(--transition-smooth) both;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+            border-radius: var(--radius);
+            display: grid;
+            place-items: center;
+            font-family: var(--font-mono);
+            font-weight: 500;
+            font-size: 20px;
+            color: var(--bg);
+            box-shadow: 0 0 24px var(--accent-glow);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+            .logo::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+                animation: logoShine 3s ease-in-out infinite;
+            }
+
+        @keyframes logoShine {
+            0%, 100% {
+                transform: translateX(-100%);
+            }
+
+            50% {
+                transform: translateX(100%);
+            }
+        }
+
+        .header-text h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .header-text p {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-tag {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 4px 10px;
+            background: var(--info-bg);
+            color: var(--accent);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            letter-spacing: 0.04em;
+        }
+
+        /* ── Glass Card ── */
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(24px) saturate(1.4);
+            -webkit-backdrop-filter: blur(24px) saturate(1.4);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+        }
+
+            .card:hover {
+                border-color: var(--border-hover);
+                box-shadow: var(--shadow-card-hover);
+            }
+
+        .card-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .card-title i {
                 font-size: 13px;
+                opacity: 0.7;
             }
 
-            /* ── Card ── */
-            .card {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 24px;
-                margin-bottom: 24px;
+        /* ── Controls ── */
+        .controls {
+            display: flex;
+            gap: 14px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        select, input[type=number] {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            width: 140px;
+            outline: none;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7f8e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+            select:focus, input:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-glow);
             }
 
-            .card-title {
-                font-size: 13px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: .08em;
-                color: var(--muted);
-                margin-bottom: 16px;
+        /* ── Buttons ── */
+        .btn {
+            padding: 10px 22px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+            .btn::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+                opacity: 0;
+                transition: opacity var(--transition-fast);
             }
 
-            /* ── Controls ── */
-            .controls {
+            .btn:hover::after {
+                opacity: 1;
+            }
+
+            .btn:active {
+                transform: scale(0.97);
+            }
+
+            .btn:disabled {
+                opacity: 0.35;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+
+                .btn:disabled::after {
+                    display: none;
+                }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+            color: var(--bg);
+            box-shadow: 0 2px 16px var(--accent-glow);
+        }
+
+            .btn-primary:hover:not(:disabled) {
+                box-shadow: 0 4px 24px rgba(56, 189, 170, 0.4);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:active:not(:disabled) {
+                transform: translateY(0) scale(0.97);
+            }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+
+            .btn-ghost:hover:not(:disabled) {
+                border-color: var(--border-hover);
+                color: var(--text);
+                background: rgba(56, 189, 170, 0.05);
+            }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: var(--radius-xs);
+        }
+
+        /* ── Badge ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .badge-green {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(52,211,153,0.2);
+        }
+
+        .badge-blue {
+            background: var(--info-bg);
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+
+        .badge-red {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(248,113,113,0.2);
+        }
+
+        .badge-yellow {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid rgba(251,191,36,0.2);
+        }
+
+        /* ── Banner ── */
+        .banner {
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            animation: bannerIn 0.4s var(--transition-spring) both;
+        }
+
+            .banner.show {
                 display: flex;
-                gap: 12px;
-                align-items: flex-end;
-                flex-wrap: wrap;
             }
 
-            label {
-                display: block;
-                font-size: 12px;
-                color: var(--muted);
-                margin-bottom: 4px;
+        .banner-success {
+            background: var(--success-bg);
+            border: 1px solid rgba(52,211,153,0.25);
+            color: var(--success);
+        }
+
+        .banner-error {
+            background: var(--danger-bg);
+            border: 1px solid rgba(248,113,113,0.25);
+            color: var(--danger);
+        }
+
+        .banner-warning {
+            background: var(--warning-bg);
+            border: 1px solid rgba(251,191,36,0.25);
+            color: var(--warning);
+        }
+
+        .banner-info {
+            background: var(--info-bg);
+            border: 1px solid var(--border);
+            color: var(--accent);
+        }
+
+        .banner i {
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .banner small {
+            opacity: 0.7;
+            font-weight: 400;
+        }
+
+        @keyframes bannerIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.98);
             }
 
-            select, input[type=number] {
-                background: var(--bg);
-                border: 1px solid var(--border);
-                color: var(--text);
-                padding: 8px 12px;
-                border-radius: var(--radius);
-                font-family: var(--font-mono);
-                font-size: 13px;
-                width: 130px;
-                outline: none;
-                transition: border-color .15s;
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── Summary Strip ── */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .stat {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px;
+            transition: border-color var(--transition-fast), transform var(--transition-fast);
+            animation: statPop 0.5s var(--transition-spring) both;
+        }
+
+            .stat:hover {
+                border-color: var(--border-hover);
+                transform: translateY(-2px);
             }
 
-                select:focus, input:focus {
-                    border-color: var(--accent);
-                }
-
-            /* ── Buttons ── */
-            .btn {
-                padding: 8px 20px;
-                border-radius: var(--radius);
-                border: none;
-                font-family: var(--font-sans);
-                font-size: 13px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: opacity .15s, transform .1s;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
+            .stat:nth-child(1) {
+                animation-delay: 0.05s;
             }
 
-                .btn:active {
-                    transform: scale(.97);
-                }
-
-                .btn:disabled {
-                    opacity: .4;
-                    cursor: not-allowed;
-                    transform: none;
-                }
-
-            .btn-primary {
-                background: var(--accent);
-                color: #0d1117;
+            .stat:nth-child(2) {
+                animation-delay: 0.1s;
             }
 
-            .btn-ghost {
-                background: transparent;
-                color: var(--text);
-                border: 1px solid var(--border);
+            .stat:nth-child(3) {
+                animation-delay: 0.15s;
             }
 
-            .btn-sm {
-                padding: 4px 12px;
-                font-size: 12px;
+            .stat:nth-child(4) {
+                animation-delay: 0.2s;
             }
 
-            /* ── Badge ── */
-            .badge {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 100px;
-                font-size: 11px;
-                font-weight: 600;
-                font-family: var(--font-mono);
+            .stat:nth-child(5) {
+                animation-delay: 0.25s;
             }
 
-            .badge-green {
-                background: rgba(63,185,80,.15);
-                color: var(--success);
+        @keyframes statPop {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.95);
             }
 
-            .badge-blue {
-                background: rgba(88,166,255,.15);
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+            .stat-value.accent {
                 color: var(--accent);
             }
 
-            .badge-red {
-                background: rgba(248,81,73,.15);
-                color: var(--danger);
-            }
+        /* ── Table ── */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-sm);
+        }
 
-            /* ── Status banner ── */
-            .banner {
-                padding: 12px 16px;
-                border-radius: var(--radius);
-                font-size: 13px;
-                margin-bottom: 20px;
-                display: none;
-            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
 
-                .banner.show {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
 
-            .banner-success {
-                background: rgba(63,185,80,.1);
-                border: 1px solid rgba(63,185,80,.3);
-                color: var(--success);
-            }
+        th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            background: var(--bg-deep);
+            border-bottom: 1px solid var(--border);
+        }
 
-            .banner-error {
-                background: rgba(248,81,73,.1);
-                border: 1px solid rgba(248,81,73,.3);
-                color: var(--danger);
-            }
-
-            .banner-warning {
-                background: rgba(210,153,34,.1);
-                border: 1px solid rgba(210,153,34,.3);
-                color: var(--warning);
-            }
-
-            .banner-info {
-                background: rgba(88,166,255,.1);
-                border: 1px solid rgba(88,166,255,.3);
-                color: var(--accent);
-            }
-
-            /* ── Table ── */
-            .table-wrap {
-                overflow-x: auto;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 13px;
-            }
-
-            th {
-                text-align: left;
-                padding: 8px 12px;
-                font-size: 11px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: .06em;
-                color: var(--muted);
-                border-bottom: 1px solid var(--border);
-            }
-
-            td {
-                padding: 10px 12px;
-                border-bottom: 1px solid rgba(48,54,61,.5);
-                font-family: var(--font-mono);
-                font-size: 12px;
-            }
-
-            tr:last-child td {
-                border-bottom: none;
-            }
-
-            tr:hover td {
-                background: rgba(88,166,255,.04);
-            }
-
-            .num {
+            th.num {
                 text-align: right;
             }
 
-            td.name-cell {
-                font-family: var(--font-sans);
-                font-size: 13px;
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(56, 189, 170, 0.06);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            transition: background var(--transition-fast);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            animation: rowSlideIn 0.4s var(--transition-smooth) both;
+        }
+
+            tbody tr:hover td {
+                background: rgba(56, 189, 170, 0.04);
+            }
+
+        td.num {
+            text-align: right;
+        }
+
+        td.name-cell {
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        td.dept-cell {
+            font-family: var(--font-sans);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .emp-code {
+            font-size: 10px;
+            color: var(--muted);
+            font-family: var(--font-mono);
+            margin-top: 1px;
+            opacity: 0.7;
+        }
+
+        @keyframes rowSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ── Spinner ── */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .spinner-lg {
+            width: 28px;
+            height: 28px;
+            border-width: 3px;
+        }
+
+        /* ═══════════════════════════════════════════════
+           MODAL
+        ═══════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 6, 10, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+            .modal-overlay.open {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        .modal {
+            background: var(--surface-solid);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 540px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px var(--border);
+            transform: translateY(20px) scale(0.96);
+            transition: transform 0.4s var(--transition-spring);
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--muted);
+            font-size: 14px;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: all var(--transition-fast);
+        }
+
+            .modal-close:hover {
+                color: var(--text);
+                border-color: var(--border-hover);
+                background: rgba(56,189,170,0.1);
+            }
+
+        .modal h2 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.01em;
+        }
+
+            .modal h2 i {
+                color: var(--accent);
+                font-size: 16px;
+            }
+
+        /* ── Payslip ── */
+        .slip-header {
+            background: linear-gradient(135deg, var(--bg-deep), rgba(56,189,170,0.06));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+            .slip-header .emp-name {
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 2px;
+            }
+
+            .slip-header .emp-meta {
+                font-size: 12px;
+                color: var(--muted);
+            }
+
+        .slip-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(56, 189, 170, 0.06);
+            font-size: 13px;
+            animation: slipRowIn 0.3s ease both;
+        }
+
+            .slip-row:last-child {
+                border-bottom: none;
+            }
+
+            .slip-row .label {
+                color: var(--text-dim);
+            }
+
+            .slip-row .value {
+                font-family: var(--font-mono);
                 font-weight: 500;
             }
 
-            td.dept-cell {
-                font-family: var(--font-sans);
-                color: var(--muted);
-                font-size: 12px;
+            .slip-row.total {
+                font-weight: 700;
+                padding: 14px 0;
+                margin-top: 4px;
+                border-top: 2px solid var(--accent);
+                border-bottom: none;
             }
 
-            /* ── Summary strip ── */
-            .summary {
-                display: flex;
-                gap: 24px;
-                flex-wrap: wrap;
-                margin-bottom: 20px;
-            }
-
-            .stat {
-            }
-
-            .stat-label {
-                font-size: 11px;
-                color: var(--muted);
-                text-transform: uppercase;
-                letter-spacing: .06em;
-            }
-
-            .stat-value {
-                font-family: var(--font-mono);
-                font-size: 20px;
-                font-weight: 600;
-                color: var(--accent);
-            }
-
-            /* ── Spinner ── */
-            @keyframes spin {
-                to {
-                    transform: rotate(360deg);
+                .slip-row.total .label {
+                    color: var(--text);
+                    font-size: 14px;
                 }
+
+                .slip-row.total .value {
+                    color: var(--accent);
+                    font-size: 18px;
+                }
+
+            .slip-row.deduction .value {
+                color: var(--danger);
             }
 
-            .spinner {
-                width: 16px;
-                height: 16px;
-                border: 2px solid var(--border);
-                border-top-color: var(--accent);
-                border-radius: 50%;
-                animation: spin .6s linear infinite;
-                display: inline-block;
+        .slip-section-title {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            margin: 20px 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .slip-section-title::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
             }
 
-            /* ── Modal overlay ── */
+        @keyframes slipRowIn {
+            from {
+                opacity: 0;
+                transform: translateX(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ── Empty state ── */
+        .empty {
+            text-align: center;
+            padding: 56px 20px;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 44px;
+            margin-bottom: 14px;
+            opacity: 0.5;
+            animation: emptyFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes emptyFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════
+           ENTRANCE ANIMATIONS
+        ═══════════════════════════════════════════════ */
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .anim-enter {
+            animation: fadeSlideUp 0.6s var(--transition-smooth) both;
+        }
+
+        .anim-enter-d1 {
+            animation-delay: 0.1s;
+        }
+
+        .anim-enter-d2 {
+            animation-delay: 0.2s;
+        }
+
+        /* ── Results reveal ── */
+        #results {
+            transition: opacity 0.4s ease;
+        }
+
+            #results.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+        /* ── Print ── */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .bg-scene, .bg-grid {
+                display: none !important;
+            }
+
             .modal-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,.7);
-                display: none;
-                place-items: center;
-                z-index: 100;
+                position: static;
+                display: block;
+                background: none;
+                backdrop-filter: none;
+                opacity: 1;
+                visibility: visible;
             }
-
-                .modal-overlay.open {
-                    display: grid;
-                }
 
             .modal {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                width: 520px;
-                max-width: 95vw;
-                padding: 28px;
-                position: relative;
-            }
-
-            .modal-close {
-                position: absolute;
-                top: 16px;
-                right: 16px;
-                background: none;
                 border: none;
-                color: var(--muted);
-                font-size: 20px;
-                cursor: pointer;
-                line-height: 1;
+                box-shadow: none;
+                width: 100%;
+                max-height: none;
+                transform: none;
+                background: white;
+                border-radius: 0;
+                padding: 20px;
             }
 
-                .modal-close:hover {
-                    color: var(--text);
-                }
-
-            .modal h2 {
-                font-size: 16px;
-                margin-bottom: 20px;
+            body {
+                background: white;
+                color: #1a1a1a;
             }
 
-            /* ── Payslip ── */
-            .slip-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 8px 0;
-                border-bottom: 1px solid var(--border);
-                font-size: 13px;
+            .slip-row, .slip-row .label, .slip-row .value {
+                color: #1a1a1a !important;
             }
 
-                .slip-row:last-child {
-                    border-bottom: none;
+                .slip-row.total .value {
+                    color: #0d6b5e !important;
                 }
 
-                .slip-row.total {
-                    font-weight: 700;
-                    color: var(--accent);
-                    font-family: var(--font-mono);
-                }
+            .slip-header {
+                background: #f5f5f5;
+                border-color: #ddd;
+            }
 
             .slip-section-title {
-                font-size: 11px;
-                font-weight: 600;
-                text-transform: uppercase;
-                color: var(--muted);
-                letter-spacing: .08em;
-                margin: 16px 0 8px;
+                color: #0d6b5e !important;
             }
 
-            /* ── Empty state ── */
-            .empty {
-                text-align: center;
-                padding: 48px 0;
-                color: var(--muted);
-            }
-
-            .empty-icon {
-                font-size: 40px;
-                margin-bottom: 12px;
-            }
-
-            /* ── Print ── */
-            @media print {
-                .no-print {
-                    display: none !important;
+                .slip-section-title::after {
+                    background: #ddd;
                 }
 
-                .modal-overlay {
-                    position: static;
-                    display: block;
-                    background: none;
+            .slip-row {
+                border-bottom-color: #eee;
+            }
+
+                .slip-row.total {
+                    border-top-color: #0d6b5e;
                 }
 
-                .modal {
-                    border: none;
-                    box-shadow: none;
+            .badge {
+                border: 1px solid #ccc !important;
+            }
+
+            .badge-red {
+                color: #c00 !important;
+                background: #fee !important;
+            }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .app {
+                padding: 20px 14px 60px;
+            }
+
+            .header {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .header-right {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+                .controls .control-group {
                     width: 100%;
                 }
 
-                body {
-                    background: white;
-                    color: black;
+                .controls select,
+                .controls input[type=number] {
+                    width: 100%;
                 }
 
-                .slip-row {
-                    color: black;
+                .controls .btn {
+                    width: 100%;
+                    justify-content: center;
                 }
+
+            .summary {
+                grid-template-columns: 1fr 1fr;
             }
+
+            .card {
+                padding: 20px;
+            }
+
+            .stat-value {
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ── Focus visible ── */
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        select:focus-visible,
+        input:focus-visible {
+            outline: none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Animated Background -->
+    <div class="bg-scene" aria-hidden="true">
+        <div class="bg-orb bg-orb--1"></div>
+        <div class="bg-orb bg-orb--2"></div>
+        <div class="bg-orb bg-orb--3"></div>
+    </div>
+    <div class="bg-grid" aria-hidden="true"></div>
 
     <div class="app">
 
         <!-- Header -->
         <header class="header">
-            <div class="logo">₹</div>
-            <div>
+            <div class="logo" aria-hidden="true">₹</div>
+            <div class="header-text">
                 <h1>Payroll Run Module</h1>
                 <p>HR Portal — Monthly Payroll Processing</p>
+            </div>
+            <div class="header-right">
+                <span class="header-tag">v2.4.0</span>
             </div>
         </header>
 
         <!-- ── Controls Card ── -->
-        <div class="card no-print">
-            <div class="card-title">Run Payroll</div>
+        <div class="card no-print anim-enter anim-enter-d1">
+            <div class="card-title">
+                <i class="fa-solid fa-sliders"></i>
+                Run Payroll
+            </div>
             <div class="controls">
-                <div>
+                <div class="control-group">
                     <label for="selMonth">Month</label>
-                    <select id="selMonth"></select>
+                    <select id="selMonth" aria-label="Select payroll month"></select>
                 </div>
-                <div>
+                <div class="control-group">
                     <label for="selYear">Year</label>
-                    <input type="number" id="selYear" value="2026" min="2000" max="2100" />
+                    <input type="number" id="selYear" value="2026" min="2000" max="2100" aria-label="Enter payroll year" />
                 </div>
-                <button class="btn btn-primary" id="btnRun" onclick="runPayroll()">
-                    <span id="runLabel">⚡ Run Payroll</span>
+                <button class="btn btn-primary" id="btnRun" onclick="runPayroll()" aria-label="Run payroll">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span id="runLabel">Run Payroll</span>
                 </button>
-                <button class="btn btn-ghost" onclick="fetchRun()">
-                    🔍 Load Existing
+                <button class="btn btn-ghost" onclick="fetchRun()" aria-label="Load existing payroll run">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    Load Existing
                 </button>
             </div>
         </div>
 
         <!-- Banner -->
-        <div class="banner" id="banner"></div>
+        <div class="banner" id="banner" role="alert" aria-live="polite"></div>
 
         <!-- ── Results ── -->
-        <div id="results" style="display:none">
-            <div class="card">
-                <div class="card-title">Run Summary</div>
+        <div id="results" style="display:none" class="hidden">
+
+            <div class="card no-print">
+                <div class="card-title">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    Run Summary
+                </div>
                 <div class="summary" id="summary"></div>
             </div>
 
             <div class="card">
-                <div class="card-title">Payroll Details</div>
+                <div class="card-title">
+                    <i class="fa-solid fa-table-list"></i>
+                    Payroll Details
+                </div>
                 <div class="table-wrap">
-                    <table>
+                    <table role="table" aria-label="Payroll details table">
                         <thead>
                             <tr>
-                                <th>Employee</th>
-                                <th>Department</th>
-                                <th class="num">Basic (₹)</th>
-                                <th class="num">Days</th>
-                                <th class="num">Present</th>
-                                <th class="num">Gross (₹)</th>
-                                <th class="num">PF (₹)</th>
-                                <th class="num">Prof Tax</th>
-                                <th class="num">Net Pay (₹)</th>
-                                <th></th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Department</th>
+                                <th scope="col" class="num">Basic (₹)</th>
+                                <th scope="col" class="num">Days</th>
+                                <th scope="col" class="num">Present</th>
+                                <th scope="col" class="num">Gross (₹)</th>
+                                <th scope="col" class="num">PF (₹)</th>
+                                <th scope="col" class="num">Prof Tax</th>
+                                <th scope="col" class="num">Net Pay (₹)</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody id="tableBody"></tbody>
@@ -517,282 +1209,314 @@
     </div>
 
     <!-- ── Payslip Modal ── -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)" role="dialog" aria-modal="true" aria-label="Employee payslip">
         <div class="modal">
-            <button class="modal-close no-print" onclick="closeSlip()">✕</button>
-            <h2>Employee Payslip</h2>
+            <button class="modal-close no-print" onclick="closeSlip()" aria-label="Close payslip">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Employee Payslip</h2>
             <div id="slipContent"></div>
-            <div style="margin-top:24px; text-align:right" class="no-print">
-                <button class="btn btn-primary btn-sm" onclick="window.print()">🖨 Print</button>
+            <div style="margin-top:28px; text-align:right; display:flex; gap:10px; justify-content:flex-end;" class="no-print">
+                <button class="btn btn-ghost btn-sm" onclick="closeSlip()">Close</button>
+                <button class="btn btn-primary btn-sm" onclick="window.print()">
+                    <i class="fa-solid fa-print"></i> Print
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-  // ── CONFIG ────────────────────────────────────────────────
-  // Change this to your API base URL if different
+        // ── CONFIG ────────────────────────────────────────────────
         const API = 'https://localhost:7240/api';
 
-  const MONTHS = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December'
-  ];
+        const MONTHS = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
 
-  // ── State ────────────────────────────────────────────────
-  let currentRun = null;
+        // ── State ────────────────────────────────────────────────
+        let currentRun = null;
 
-  // ── Init ─────────────────────────────────────────────────
-  (function init() {
-    const sel = document.getElementById('selMonth');
-    MONTHS.forEach((m, i) => {
-      const opt = document.createElement('option');
-      opt.value = i + 1;
-      opt.textContent = m;
-      if (i + 1 === new Date().getMonth() + 1) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  })();
+        // ── Init ─────────────────────────────────────────────────
+        (function init() {
+            const sel = document.getElementById('selMonth');
+            MONTHS.forEach((m, i) => {
+                const opt = document.createElement('option');
+                opt.value = i + 1;
+                opt.textContent = m;
+                if (i + 1 === new Date().getMonth() + 1) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        })();
 
-  // ── Helpers ───────────────────────────────────────────────
-  const fmt = n => '₹' + parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-  const fmtNum = n => parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+        // ── Helpers ───────────────────────────────────────────────
+        const fmt = n => '₹' + parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+        const fmtNum = n => parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2 });
 
-  function showBanner(type, msg) {
-    const el = document.getElementById('banner');
-    el.className = `banner show banner-${type}`;
-    el.innerHTML = msg;
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+        /* Banner icon map */
+        const BANNER_ICONS = {
+            success: 'fa-circle-check',
+            error: 'fa-circle-xmark',
+            warning: 'fa-triangle-exclamation',
+            info: 'fa-circle-info'
+        };
 
-  function hideBanner() {
-    document.getElementById('banner').className = 'banner';
-  }
+        function showBanner(type, msg) {
+            const el = document.getElementById('banner');
+            el.className = `banner show banner-${type}`;
+            /* Strip any old HTML spinner/icon, rebuild with icon */
+            const plainMsg = msg.replace(/<[^>]*>/g, '').trim();
+            el.innerHTML = `<i class="fa-solid ${BANNER_ICONS[type] || BANNER_ICONS.info}"></i><span>${msg}</span>`;
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
 
-  function setLoading(on) {
-    const btn   = document.getElementById('btnRun');
-    const label = document.getElementById('runLabel');
-    btn.disabled = on;
-    label.innerHTML = on
-      ? '<span class="spinner"></span> Running...'
-      : '⚡ Run Payroll';
-  }
+        function hideBanner() {
+            document.getElementById('banner').className = 'banner';
+        }
 
-  // ── Run Payroll (POST) ────────────────────────────────────
-  async function runPayroll() {
-    hideBanner();
-    const month = parseInt(document.getElementById('selMonth').value);
-    const year  = parseInt(document.getElementById('selYear').value);
+        function setLoading(on) {
+            const btn = document.getElementById('btnRun');
+            const label = document.getElementById('runLabel');
+            btn.disabled = on;
+            label.innerHTML = on
+                ? '<span class="spinner"></span> Running...'
+                : 'Run Payroll';
+        }
 
-    setLoading(true);
-    try {
-      const res = await fetch(`${API}/payroll/run`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ month, year })
-      });
+        // ── Run Payroll (POST) ────────────────────────────────────
+        async function runPayroll() {
+            hideBanner();
+            const month = parseInt(document.getElementById('selMonth').value);
+            const year = parseInt(document.getElementById('selYear').value);
 
-      const data = await res.json();
+            setLoading(true);
+            try {
+                const res = await fetch(`${API}/payroll/run`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ month, year })
+                });
 
-      if (res.status === 409) {
-        showBanner('warning', '⚠️ ' + data.message + ' Loading the existing run...');
-        await fetchRun();
-        return;
-      }
+                const data = await res.json();
 
-      if (!res.ok) {
-        showBanner('error', '✕ ' + (data.message || 'Payroll run failed.'));
-        return;
-      }
+                if (res.status === 409) {
+                    showBanner('warning', data.message + ' Loading the existing run...');
+                    await fetchRun();
+                    return;
+                }
 
-      showBanner('success', '✓ Payroll run completed successfully!');
-      await fetchRun();
+                if (!res.ok) {
+                    showBanner('error', data.message || 'Payroll run failed.');
+                    return;
+                }
 
-    } catch (err) {
-      showBanner('error', '✕ Network error: ' + err.message
-        + '<br><small>Is the API running? Check the console.</small>');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
+                showBanner('success', 'Payroll run completed successfully!');
+                await fetchRun();
 
-  // ── Fetch Existing Run (GET) ──────────────────────────────
-  async function fetchRun() {
-    hideBanner();
-    const month = parseInt(document.getElementById('selMonth').value);
-    const year  = parseInt(document.getElementById('selYear').value);
+            } catch (err) {
+                showBanner('error', 'Network error: ' + err.message
+                    + '<br><small>Is the API running? Check the console.</small>');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        }
 
-    showBanner('info', '<span class="spinner"></span>&nbsp; Loading payroll run...');
-    try {
-      const res = await fetch(`${API}/payroll/${month}/${year}`);
+        // ── Fetch Existing Run (GET) ──────────────────────────────
+        async function fetchRun() {
+            hideBanner();
+            const month = parseInt(document.getElementById('selMonth').value);
+            const year = parseInt(document.getElementById('selYear').value);
 
-      if (res.status === 404) {
-        showBanner('warning', '⚠️ No payroll run found for '
-          + MONTHS[month - 1] + ' ' + year + '.');
-        document.getElementById('results').style.display = 'none';
-        return;
-      }
+            showBanner('info', '<span class="spinner"></span>&nbsp; Loading payroll run...');
+            try {
+                const res = await fetch(`${API}/payroll/${month}/${year}`);
 
-      if (!res.ok) throw new Error('API error: ' + res.status);
+                if (res.status === 404) {
+                    showBanner('warning', 'No payroll run found for '
+                        + MONTHS[month - 1] + ' ' + year + '.');
+                    document.getElementById('results').style.display = 'none';
+                    return;
+                }
 
-      const run = await res.json();
-      currentRun = run;
-      renderRun(run);
-      hideBanner();
+                if (!res.ok) throw new Error('API error: ' + res.status);
 
-    } catch (err) {
-      showBanner('error', '✕ ' + err.message);
-      console.error(err);
-    }
-  }
+                const run = await res.json();
+                currentRun = run;
+                renderRun(run);
+                hideBanner();
 
-  // ── Render Results ────────────────────────────────────────
-  function renderRun(run) {
-    document.getElementById('results').style.display = 'block';
+            } catch (err) {
+                showBanner('error', err.message);
+                console.error(err);
+            }
+        }
 
-    // Summary
-    document.getElementById('summary').innerHTML = `
-      <div class="stat">
-        <div class="stat-label">Period</div>
-        <div class="stat-value">${MONTHS[run.month - 1]} ${run.year}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Employees</div>
-        <div class="stat-value">${run.employeeCount}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Total Net Pay</div>
-        <div class="stat-value">${fmt(run.totalNetPay)}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Status</div>
-        <div class="stat-value" style="font-size:14px; padding-top:4px">
-          <span class="badge badge-green">Finalized</span>
-        </div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Run ID</div>
-        <div class="stat-value" style="font-size:14px">#${run.runId}</div>
-      </div>
-    `;
+        // ── Render Results ────────────────────────────────────────
+        function renderRun(run) {
+            const resultsEl = document.getElementById('results');
+            resultsEl.style.display = 'block';
 
-    // Table
-    const tbody = document.getElementById('tableBody');
-    if (!run.details || run.details.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="10"><div class="empty">
-        <div class="empty-icon">📭</div>
-        <div>No attendance records found for this period.</div>
-      </div></td></tr>`;
-      return;
-    }
+            /* Trigger re-animation by forcing reflow */
+            resultsEl.classList.add('hidden');
+            void resultsEl.offsetWidth;
+            resultsEl.classList.remove('hidden');
 
-    tbody.innerHTML = run.details.map(d => {
-      const netColor = d.netPay < 0 ? 'color:var(--danger)' : '';
-      return `
-        <tr>
-          <td class="name-cell">
-            ${d.fullName}
-            <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">${d.employeeCode}</div>
-          </td>
-          <td class="dept-cell">${d.departmentName}</td>
-          <td class="num">${fmtNum(d.basicSalary)}</td>
-          <td class="num">${d.workingDays}</td>
-          <td class="num">
-            ${d.daysPresent === 0
-              ? '<span class="badge badge-red">LOP</span>'
-              : d.daysPresent === d.workingDays
-                ? `${d.daysPresent} <span class="badge badge-green">Full</span>`
-                : d.daysPresent}
-          </td>
-          <td class="num">${fmtNum(d.grossPay)}</td>
-          <td class="num">${fmtNum(d.pfDeduction)}</td>
-          <td class="num">${fmtNum(d.professionalTax)}</td>
-          <td class="num" style="${netColor}; font-weight:600">${fmtNum(d.netPay)}</td>
-          <td>
-            <button class="btn btn-ghost btn-sm"
-              onclick="openSlip(${run.runId}, ${d.employeeId})">
-              Slip
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join('');
+            // Summary
+            document.getElementById('summary').innerHTML = `
+                    <div class="stat">
+                        <div class="stat-label">Period</div>
+                        <div class="stat-value">${MONTHS[run.month - 1]} ${run.year}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Employees</div>
+                        <div class="stat-value accent">${run.employeeCount}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Total Net Pay</div>
+                        <div class="stat-value accent">${fmt(run.totalNetPay)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" style="padding-top:6px">
+                            <span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:6px"></i> Finalized</span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Run ID</div>
+                        <div class="stat-value" style="font-size:14px; padding-top:4px">#${run.runId}</div>
+                    </div>
+                `;
 
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-  }
+            // Table
+            const tbody = document.getElementById('tableBody');
+            if (!run.details || run.details.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10"><div class="empty">
+                        <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                        <div>No attendance records found for this period.</div>
+                    </div></td></tr>`;
+                return;
+            }
 
-  // ── Payslip Modal ─────────────────────────────────────────
-  async function openSlip(runId, employeeId) {
-    document.getElementById('slipContent').innerHTML =
-      '<div class="empty"><span class="spinner" style="width:24px;height:24px;border-width:3px"></span></div>';
-    document.getElementById('modalOverlay').classList.add('open');
+            tbody.innerHTML = run.details.map((d, i) => {
+                const netColor = d.netPay < 0 ? 'color:var(--danger)' : 'color:var(--text)';
+                const presentBadge = d.daysPresent === 0
+                    ? '<span class="badge badge-red">LOP</span>'
+                    : d.daysPresent === d.workingDays
+                        ? `${d.daysPresent} <span class="badge badge-green">Full</span>`
+                        : `${d.daysPresent} <span class="badge badge-yellow">Partial</span>`;
+                return `
+                        <tr style="animation-delay:${i * 0.04}s">
+                            <td class="name-cell">
+                                ${d.fullName}
+                                <div class="emp-code">${d.employeeCode}</div>
+                            </td>
+                            <td class="dept-cell">${d.departmentName}</td>
+                            <td class="num">${fmtNum(d.basicSalary)}</td>
+                            <td class="num">${d.workingDays}</td>
+                            <td class="num" style="font-family:var(--font-sans)">${presentBadge}</td>
+                            <td class="num">${fmtNum(d.grossPay)}</td>
+                            <td class="num" style="color:var(--danger); opacity:0.8">${fmtNum(d.pfDeduction)}</td>
+                            <td class="num" style="color:var(--danger); opacity:0.8">${fmtNum(d.professionalTax)}</td>
+                            <td class="num" style="${netColor}; font-weight:600">${fmtNum(d.netPay)}</td>
+                            <td>
+                                <button class="btn btn-ghost btn-sm"
+                                    onclick="openSlip(${run.runId}, ${d.employeeId})"
+                                    aria-label="View payslip for ${d.fullName}">
+                                    <i class="fa-solid fa-receipt"></i> Slip
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+            }).join('');
 
-    try {
-      const res = await fetch(`${API}/payroll/${runId}/slip/${employeeId}`);
-      if (!res.ok) throw new Error('Payslip not found.');
-      const d = await res.json();
-      renderSlip(d);
-    } catch (err) {
-      document.getElementById('slipContent').innerHTML =
-        `<div style="color:var(--danger)">${err.message}</div>`;
-    }
-  }
+            setTimeout(() => {
+                resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
 
-  function renderSlip(d) {
-    const month = currentRun ? MONTHS[currentRun.month - 1] + ' ' + currentRun.year : 'N/A';
-    document.getElementById('slipContent').innerHTML = `
-      <div class="slip-row">
-        <span style="color:var(--muted)">Employee</span>
-        <span><strong>${d.fullName}</strong> (${d.employeeCode})</span>
-      </div>
-      <div class="slip-row">
-        <span style="color:var(--muted)">Department</span><span>${d.departmentName}</span>
-      </div>
-      <div class="slip-row">
-        <span style="color:var(--muted)">Pay Period</span><span>${month}</span>
-      </div>
-      <div class="slip-row">
-        <span style="color:var(--muted)">Working Days</span><span>${d.workingDays}</span>
-      </div>
-      <div class="slip-row">
-        <span style="color:var(--muted)">Days Present</span>
-        <span>${d.daysPresent}
-          ${d.daysPresent === 0 ? '<span class="badge badge-red" style="margin-left:6px">LOP</span>' : ''}
-        </span>
-      </div>
+        // ── Payslip Modal ─────────────────────────────────────────
+        async function openSlip(runId, employeeId) {
+            document.getElementById('slipContent').innerHTML =
+                '<div class="empty" style="padding:32px"><span class="spinner spinner-lg"></span></div>';
+            document.getElementById('modalOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
 
-      <div class="slip-section-title">Earnings</div>
-      <div class="slip-row">
-        <span>Basic Salary</span><span>${fmt(d.basicSalary)}</span>
-      </div>
-      <div class="slip-row">
-        <span>Gross Pay</span><span>${fmt(d.grossPay)}</span>
-      </div>
+            try {
+                const res = await fetch(`${API}/payroll/${runId}/slip/${employeeId}`);
+                if (!res.ok) throw new Error('Payslip not found.');
+                const d = await res.json();
+                renderSlip(d);
+            } catch (err) {
+                document.getElementById('slipContent').innerHTML =
+                    `<div style="color:var(--danger); text-align:center; padding:24px"><i class="fa-solid fa-circle-xmark" style="font-size:28px;margin-bottom:8px;display:block"></i>${err.message}</div>`;
+            }
+        }
 
-      <div class="slip-section-title">Deductions</div>
-      <div class="slip-row">
-        <span>Provident Fund (12%)</span>
-        <span style="color:var(--danger)">- ${fmt(d.pfDeduction)}</span>
-      </div>
-      <div class="slip-row">
-        <span>Professional Tax</span>
-        <span style="color:var(--danger)">- ${fmt(d.professionalTax)}</span>
-      </div>
+        function renderSlip(d) {
+            const month = currentRun ? MONTHS[currentRun.month - 1] + ' ' + currentRun.year : 'N/A';
+            const lopBadge = d.daysPresent === 0
+                ? '<span class="badge badge-red" style="margin-left:8px">Loss of Pay</span>'
+                : '';
+            document.getElementById('slipContent').innerHTML = `
+                    <div class="slip-header">
+                        <div class="emp-name">${d.fullName}</div>
+                        <div class="emp-meta">${d.employeeCode} &middot; ${d.departmentName}</div>
+                    </div>
 
-      <div class="slip-section-title" style="margin-top:20px"></div>
-      <div class="slip-row total">
-        <span>NET PAY</span><span>${fmt(d.netPay)}</span>
-      </div>
-    `;
-  }
+                    <div class="slip-row" style="animation-delay:0.02s">
+                        <span class="label">Pay Period</span>
+                        <span class="value">${month}</span>
+                    </div>
+                    <div class="slip-row" style="animation-delay:0.04s">
+                        <span class="label">Working Days</span>
+                        <span class="value">${d.workingDays}</span>
+                    </div>
+                    <div class="slip-row" style="animation-delay:0.06s">
+                        <span class="label">Days Present</span>
+                        <span class="value">${d.daysPresent}${lopBadge}</span>
+                    </div>
 
-  function closeSlip() {
-    document.getElementById('modalOverlay').classList.remove('open');
-  }
+                    <div class="slip-section-title">Earnings</div>
+                    <div class="slip-row" style="animation-delay:0.1s">
+                        <span class="label">Basic Salary</span>
+                        <span class="value">${fmt(d.basicSalary)}</span>
+                    </div>
+                    <div class="slip-row" style="animation-delay:0.12s">
+                        <span class="label">Gross Pay</span>
+                        <span class="value" style="color:var(--success)">${fmt(d.grossPay)}</span>
+                    </div>
 
-  function closeModal(e) {
-    if (e.target === document.getElementById('modalOverlay')) closeSlip();
-  }
+                    <div class="slip-section-title">Deductions</div>
+                    <div class="slip-row deduction" style="animation-delay:0.16s">
+                        <span class="label">Provident Fund (12%)</span>
+                        <span class="value">- ${fmt(d.pfDeduction)}</span>
+                    </div>
+                    <div class="slip-row deduction" style="animation-delay:0.18s">
+                        <span class="label">Professional Tax</span>
+                        <span class="value">- ${fmt(d.professionalTax)}</span>
+                    </div>
+
+                    <div class="slip-row total" style="animation-delay:0.22s">
+                        <span class="label">NET PAY</span>
+                        <span class="value">${fmt(d.netPay)}</span>
+                    </div>
+                `;
+        }
+
+        function closeSlip() {
+            document.getElementById('modalOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function closeModal(e) {
+            if (e.target === document.getElementById('modalOverlay')) closeSlip();
+        }
+
+        /* Close modal on Escape key */
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSlip();
+        });
     </script>
 </body>
 </html>
