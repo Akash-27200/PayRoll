@@ -4,29 +4,7 @@ A complete full-stack payroll processing system built with ASP.NET Core 8, SQL S
 
 ---
 
-## Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [System Architecture](#system-architecture)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Project Setup](#project-setup)
-  - [Database Setup](#database-setup)
-  - [Backend Setup](#backend-setup)
-  - [Running the Application](#running-the-application)
-- [Project Structure](#project-structure)
-- [API Endpoints](#api-endpoints)
-- [Payroll Calculation Logic](#payroll-calculation-logic)
-- [Frontend Features](#frontend-features)
-- [Key Implementation Details](#key-implementation-details)
-- [Assumptions & Design Decisions](#assumptions--design-decisions)
-- [Bonus Features Implemented](#bonus-features-implemented)
-- [Known Limitations & Future Enhancements](#known-limitations--future-enhancements)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
-
----
 
 ## Overview
 
