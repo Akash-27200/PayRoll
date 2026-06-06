@@ -53,35 +53,35 @@ The system enforces immutability — once a payroll run is finalized, it cannot 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Frontend Layer                        │
-│          HTML / CSS / JavaScript (index.html)            │
-│                   (Responsive UI)                        │
+│                    Frontend Layer                       │
+│          HTML / CSS / JavaScript (index.html)           │
+│                   (Responsive UI)                       │
 └──────────────────────┬──────────────────────────────────┘
                        │ REST API Calls (HTTPS)
                        ↓
 ┌─────────────────────────────────────────────────────────┐
-│              ASP.NET Core 8 API Layer                    │
+│              ASP.NET Core 8 API Layer                   │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │  Controllers (EmployeesController,               │   │
 │  │               PayrollController)                 │   │
 │  └──────────────┬───────────────────────────────────┘   │
-│                 ↓                                         │
+│                 ↓                                       │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │  Service Layer (Business Logic)                  │   │
 │  │  • IEmployeeService                              │   │
 │  │  • IPayrollService (Calculations)                │   │
 │  └──────────────┬───────────────────────────────────┘   │
-│                 ↓                                         │
+│                 ↓                                       │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │  Repository Layer (Data Access)                  │   │
 │  │  • IEmployeeRepository                           │   │
 │  │  • IPayrollRepository                            │   │
 │  └──────────────┬───────────────────────────────────┘   │
-└──────────────────┼─────────────────────────────────────┘
+└──────────────────┼─────────────────────────────────────-┘
                    │ ADO.NET + Dapper
                    ↓
 ┌─────────────────────────────────────────────────────────┐
-│              SQL Server Database                         │
+│              SQL Server Database                        │
 │  ┌──────────────────────────────────────────────────┐   │
 │  │  Stored Procedures                               │   │
 │  │  • usp_RunPayroll (@Month, @Year)                │   │
@@ -152,20 +152,8 @@ cd Payroll
    SELECT * FROM tblAttendance;
    ```
 
-#### B. Using Command Line (sqlcmd)
 
-```bash
-# Create database
-sqlcmd -S .\SQLEXPRESS -i DBQueries/01_Schema.sql
-
-# Seed data
-sqlcmd -S .\SQLEXPRESS -d PayrollDB -i DBQueries/02_SeedData.sql
-
-# Verify
-sqlcmd -S .\SQLEXPRESS -d PayrollDB -Q "SELECT * FROM tblEmployees;"
-```
-
-#### C. Connection String Configuration
+#### B. Connection String Configuration
 
 Edit `appsettings.json` in the `Payroll` project:
 
